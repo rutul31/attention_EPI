@@ -57,32 +57,47 @@ def load_labels(file_path):
 
     return labels_array
 
-# Tạo tokenizer
-tokenizer = create_tokenizer()
+class DummyGenomicFeatures(Dataset):
+    def __init__(self, size):
+        self.size = size
+    def __getitem__(self, idx):
+        return torch.zeros(55)
+    def __len__(self):
+        return self.size
 
-# Load dữ liệu enhancer và promoter từ fasta
-print("Loading enhancer and promoter...")
-enhancer_ids = load_fasta('./data/sequence_data/HeLa-S3/HeLa-S3_enhancer.fasta', tokenizer)
-promoter_ids = load_fasta('./data/sequence_data/HeLa-S3/HeLa-S3_promoter.fasta', tokenizer)
+if __name__ == "__main__":
+    # Tạo tokenizer
+    tokenizer = create_tokenizer()
 
-# Load labels
-print("Loading labels...")
-labels = load_labels('./data/sequence_data/HeLa-S3/HeLa-S3_label.txt')
+    # Load dữ liệu enhancer và promoter từ fasta
+    print("Loading enhancer and promoter...")
+    enhancer_ids = load_fasta('./data/sequence_data/HeLa-S3_enhancer_test.fasta', tokenizer)
+    promoter_ids = load_fasta('./data/sequence_data/HeLa-S3_promoter_test.fasta', tokenizer)
 
-# Load gene_data từ GenomicFeatures
-from feature_extraction.genomic_features import GenomicFeatures
-gene_data = GenomicFeatures(
-    enh_datasets="./data/bed_files/HeLa-S3/HeLa-S3_enhancer.bed",
-    pro_datasets="./data/bed_files/HeLa-S3/HeLa-S3_promoter.bed",
-    feats_config="./data/configfiles/CTCF_DNase_6histone.500.json",
-    feats_order=["CTCF", "DNase", "H3K27ac", "H3K4me1", "H3K4me3"],
-    cell="HeLa",
-    enh_seq_len=3000,
-    pro_seq_len=2500,
-    bin_size=500
-)
+    # Load labels
+    print("Loading labels...")
+    labels = load_labels('./data/sequence_data/HeLa-S3_label_test.txt')
+
+    # Load gene_data từ GenomicFeatures
+    try:
+        from feature_extraction.genomic_features import GenomicFeatures
+        gene_data = GenomicFeatures(
+            enh_datasets="./data/bed_files/HeLa-S3_enhancer_test.bed",
+            pro_datasets="./data/bed_files/HeLa-S3_promoter_test.bed",
+            feats_config="./data/configfiles/CTCF_DNase_6histone.500.json",
+            feats_order=["CTCF", "DNase", "H3K27ac", "H3K4me1", "H3K4me3"],
+            cell="HeLa",
+            enh_seq_len=3000,
+            pro_seq_len=2500,
+            bin_size=500
+        )
+    except Exception as e:
+        print(f"Failed to load GenomicFeatures (missing config or .pt data): {e}")
+        print("Using dummy genomic features for test run.")
+        gene_data = DummyGenomicFeatures(len(labels))
 
 
-combined_dataset = SeqGenDataset(enhancer_ids, promoter_ids, gene_data, labels)
-dataloader = DataLoader(dataset=combined_dataset, batch_size=128)
-torch.save(combined_dataset, './data/nu_HeLa_combined_dataset.pt')
+    combined_dataset = SeqGenDataset(enhancer_ids, promoter_ids, gene_data, labels)
+    dataloader = DataLoader(dataset=combined_dataset, batch_size=128)
+    torch.save(combined_dataset, './data/nu_HeLa_combined_dataset.pt')
+

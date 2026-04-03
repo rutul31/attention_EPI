@@ -11,7 +11,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = EPIModel().to(device)
 
 # # Load checkpoint dictionary
-checkpoint = torch.load('./checkpoints/model.pt', map_location=device, weights_only=False)
+checkpoint = torch.load('./checkpoints/L1_HELA.pt', map_location=device, weights_only=False)
 
 
 # Load model weights
@@ -27,7 +27,7 @@ model.eval()
 # LOAD TESTING DATA
 batch_size = 512
 torch.serialization.add_safe_globals([SeqGenDataset])
-test_combined_dataset = torch.load('./data/nu_HUVEC_combined_dataset_test.pt', weights_only=False)
+test_combined_dataset = torch.load('./data/nu_HeLa_combined_dataset.pt', weights_only=False)
 print(f"✅ TEST Dataset length: {len(test_combined_dataset)}")
 test_loader = DataLoader(test_combined_dataset, batch_size=batch_size, shuffle=True)
 
