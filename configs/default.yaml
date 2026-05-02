@@ -1,0 +1,96 @@
+# EPINTLM default configuration. Override per-cell-line via configs/cell_lines/*.yaml or
+# via CLI dot-notation: training.batch_size=128 run.seed=42
+
+run:
+  name: default                          # Becomes run dir name (timestamp prepended if generic)
+  seed: 2025
+  device: cuda                           # cuda | cpu
+  output_dir: runs
+
+data:
+  cell_line: HeLa-S3
+  raw_dir: data/raw/targetfinder
+  processed_dir: data/processed
+  chromatin_features:
+    enabled: false                       # true → real ENCODE features; false → DummyGenomicFeatures (zeros)
+    config_path: data/chromatin_features/CTCF_DNase_6histone.500.json
+    feats_order: [CTCF, DNase, H3K27ac, H3K4me1, H3K4me3]
+  embeddings_path: data/embeddings/nucleotide_transformer_6_kmer_embedding.npy
+  splits:
+    train_frac: 0.81
+    val_frac: 0.09
+    test_frac: 0.10
+  preprocessing:
+    kmer_size: 6
+    enh_seq_len: 3000
+    pro_seq_len: 2500
+    bin_size: 500
+    num_workers: 8
+
+model:
+  embedding:
+    vocab_size: 4097                     # 4^6 k-mers + 1 null token
+    dim: 1280
+    freeze_until_epoch: 2
+  enhancer_encoder:
+    conv_out_channels: 64
+    conv_kernel: 40
+    pool_kernel: 20
+    pool_stride: 20
+    dropout: 0.5
+  promoter_encoder:
+    conv_out_channels: 64
+    conv_kernel: 40
+    pool_kernel: 20
+    pool_stride: 20
+    dropout: 0.5
+  gru:
+    hidden_size: 32
+    num_layers: 2
+    bidirectional: true                  # Outputs 64-dim (2*hidden) — must match attention.embed_dim
+  attention:
+    embed_dim: 64
+    num_heads: 8
+    dropout: 0.05
+    use_self_attn: true
+    use_cross_attn: true                 # Ablation toggle
+    use_residual: true                   # Ablation toggle
+  gene_data:
+    input_dim: 55                        # DummyGenomicFeatures returns torch.zeros(55)
+    hidden_dim: 64                       # Must match attention.embed_dim
+  head:
+    hidden_dim: 128
+    dropout: 0.5
+
+training:
+  batch_size: 256
+  num_epochs: 40
+  optimizer:
+    type: adam
+    lr: 1.0e-3
+    weight_decay: 0.001
+  fine_tune:
+    lr: 1.0e-4
+    unfreeze_epoch: 2
+  scheduler:
+    type: multistep
+    milestones: [25]
+    gamma: 0.1
+  early_stopping:
+    patience: 40
+    min_delta: 1.0e-4
+  grad_clip_max_norm: 1.0
+  checkpoint_freq: 1                     # Save every N epochs
+  plot_freq: 5
+
+eval:
+  checkpoint: null                       # null → use {run_dir}/checkpoints/best.pt
+  cell_lines: [HeLa-S3, GM12878, HUVEC, IMR90]
+  batch_size: 512
+  generate_plots: true
+
+logging:
+  level: INFO
+  format: "%(asctime)s [%(run_id)s] %(levelname)s %(name)s: %(message)s"
+  console: true
+  file: true

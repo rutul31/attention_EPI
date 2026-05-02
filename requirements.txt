@@ -1,0 +1,9 @@
+torch>=2.0
+numpy
+scikit-learn
+pandas
+matplotlib
+seaborn
+pyyaml
+gdown
+transformers

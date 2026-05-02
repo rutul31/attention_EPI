@@ -1,0 +1,8 @@
+# Ablation: drop both residuals AND cross-attention (paper's "w/o Residual + Cross-Attn").
+run:
+  name: ablation_no_cross_attn
+
+model:
+  attention:
+    use_residual: false
+    use_cross_attn: false

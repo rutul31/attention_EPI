@@ -1,0 +1,6 @@
+torch.Size([4097, 1280])
+tensor(0, dtype=torch.uint8)
+✅ TEST Dataset length: 3654
+🧠 Unique predicted labels: [0. 1.]
+✅ Predicted 1s: 146/174 (83.91%)
+Validation loss: 0.5496, AUPR: 0.8681, AUC: 0.9683, f1: 0.8125

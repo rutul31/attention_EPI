@@ -1,5 +1,36 @@
+# Large artifacts
 *.pt
 *.npy
+*.bigWig
+*.bw
+*.fa
+*.fa.gz
+
+# Generated outputs
+runs/
+data/processed/
+data/raw/encode/
+data/chromatin_features/*.pt
 checkpoints/
+results/
+plots/
+
+# Python
 __pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+build/
+dist/
+
+# IDE / OS
+.vscode/
+.idea/
 .DS_Store
+
+# SLURM
+runs/slurm-*.out
+runs/slurm-*.err

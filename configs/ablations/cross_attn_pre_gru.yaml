@@ -1,0 +1,8 @@
+# Cross-attention applied between Conv and GRU only (skips post-GRU cross-attn).
+# Operates on conv-feature time series → richer per-position interactions before sequence modeling.
+run:
+  name: ablation_cross_attn_pre_gru
+
+model:
+  attention:
+    placement: pre_gru

@@ -1,0 +1,6 @@
+# HeLa-S3 — sparse override on top of configs/default.yaml.
+run:
+  name: HeLa-S3
+
+data:
+  cell_line: HeLa-S3

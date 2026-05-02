@@ -1,0 +1,8 @@
+# Ablation: drop residual connections after self/cross-attention.
+run:
+  name: ablation_no_residual
+
+model:
+  attention:
+    use_residual: false
+    use_cross_attn: true

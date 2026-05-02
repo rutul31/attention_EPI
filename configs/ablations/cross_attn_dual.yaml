@@ -1,0 +1,8 @@
+# Cross-attention applied at BOTH pre-GRU (conv-feature level) and post-GRU positions.
+# Strictly more expressive than the baseline; pays roughly 1.5–2× the cross-attn cost.
+run:
+  name: ablation_cross_attn_dual
+
+model:
+  attention:
+    placement: dual
